@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Moving Between Gorakhpur and Varanasi - Google Maps API</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAn_N2uNWPzoa6wh3HOuebl7MLJjN8pJRI" async defer></script>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <h3>Car Moving Between Gorakhpur and Varanasi</h3>
+    <div id="map"></div>
+
+    <script>
+        let map;
+        let carMarker;
+        let step = 0;
+        const stepsCount = 300; // Number of steps for smooth animation
+        let interval;
+
+        // Define the two paths (coordinates for Gorakhpur and Varanasi)
+        const path1 = { lat: 26.7606, lng: 83.3732 }; // Gorakhpur, India
+        const path2 = { lat: 25.3176, lng: 82.9739 }; // Varanasi, India
+
+        // Function to initialize the map
+        function initMap() {
+            // Center the map at the start point
+            map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 8,
+                center: path1, // Start at Gorakhpur
+            });
+
+            // Place a car marker at the start point (path1)
+            carMarker = new google.maps.Marker({
+                position: path1,
+                map: map,
+                icon: {
+                    url: "https://img.icons8.com/ios-filled/50/000000/car.png", // Car icon
+                    scaledSize: new google.maps.Size(50, 50) // Resize the icon
+                }
+            });
+
+            // Draw a line between the two paths
+            const line = new google.maps.Polyline({
+                path: [path1, path2],
+                geodesic: true,
+                strokeColor: '#FF0000',
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+                map: map
+            });
+
+            // Start animating the car along the path
+            startAnimation();
+        }
+
+        // Function to animate the car along the path
+        function startAnimation() {
+            const deltaLat = (path2.lat - path1.lat) / stepsCount;
+            const deltaLng = (path2.lng - path1.lng) / stepsCount;
+
+            interval = setInterval(() => {
+                step += 1;
+                const newLat = path1.lat + step * deltaLat;
+                const newLng = path1.lng + step * deltaLng;
+                moveCar({ lat: newLat, lng: newLng });
+
+                // Stop the animation when the car reaches the destination
+                if (step >= stepsCount) {
+                    clearInterval(interval);
+                }
+            }, 50); // Adjust the speed by changing the interval time
+        }
+
+        // Function to update the car's position on the map
+        function moveCar(position) {
+            carMarker.setPosition(position);
+            map.panTo(position); // Make the map follow the car's movement
+        }
+
+        // Initialize the map once the page loads
+        window.onload = initMap;
+    </script>
+</body>
+</html>
